@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <Folder Include="Contracts\" />
-    <Folder Include="Respositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Podium.Persistence\Podium.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
