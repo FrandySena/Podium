@@ -12,7 +12,8 @@ namespace Podium.Infrastructure.Respositories
         {
             _context = context;
         }
-        public async Task<T> GetByIdAsync(int id)
+
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);
         }
@@ -21,18 +22,15 @@ namespace Podium.Infrastructure.Respositories
         {
             return await _context.Set<T>().ToListAsync();
         }
-
-        public async void AddAsync(T entity)
+        public async Task AddAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
         }
-
-        public async void UpdateAsync(T entity)
+        public void Update(T entity)
         {
             _context.Set<T>().Update(entity);
         }
-
-        public async void DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await GetByIdAsync(id);
             if (entity != null)
@@ -40,8 +38,7 @@ namespace Podium.Infrastructure.Respositories
                 _context.Set<T>().Remove(entity);
             }
         }
-
-        public async void SaveChangesAsync()
+        public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }

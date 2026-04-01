@@ -50,7 +50,7 @@ namespace Podium.Infrastructure.Respositories
         public GenericRepository<Debate> DebateRepository => _debateRepository;
         public GenericRepository<DebateJuries> DebateJuries => _debateJuriesRepository;
         public GenericRepository<DebateParticipants> DebateParticipants => _debateParticipantsRepository;
-        public GenericRepository<Evaluation> Evaluations => _evaluationRepository;
+        public GenericRepository<Evaluation> EvaluationsRepository => _evaluationRepository;
         public GenericRepository<Topic> Topics => _topicRepository;
 
         public async Task Complete()

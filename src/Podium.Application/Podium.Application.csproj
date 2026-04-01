@@ -8,9 +8,15 @@
 
   <ItemGroup>
     <Folder Include="Contracts\" />
-    <Folder Include="Dtos\" />
-    <Folder Include="MappingProfiles\" />
-    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Podium.Domain\Podium.Domain.csproj" />
+    <ProjectReference Include="..\Podium.Infrastructure\Podium.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
