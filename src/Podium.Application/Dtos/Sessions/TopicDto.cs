@@ -1,6 +1,4 @@
-﻿using Podium.Domain.Entities.Sessions;
-
-namespace Podium.Application
+﻿namespace Podium.Application
 {
     public class TopicDto
     {

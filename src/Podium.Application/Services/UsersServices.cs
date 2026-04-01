@@ -15,57 +15,6 @@ namespace Podium.Application.Services
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public async Task<ApiResponse<UserDto>> GetUserByIdAsync(int id)
-        {
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
-            if (user == null)
-            {
-                return ApiResponse<UserDto>.FailureResponse("User not found", 404);
-            }
-
-            var respose = _mapper.Map<UserDto>(user);
-            return ApiResponse<UserDto>.SuccessResponse(respose);
-        }
-        public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync()
-        {
-            var list = await _unitOfWork.UserRepository.GetAllAsync();
-            var response = _mapper.Map<IEnumerable<UserDto>>(list);
-            return ApiResponse<IEnumerable<UserDto>>.SuccessResponse(response);
-        }
-
-        public async Task<ApiResponse<UserDto>> AddUserAsync(User user)
-        {
-            await _unitOfWork.BeginTransaction();
-            await _unitOfWork.UserRepository.AddAsync(user);
-            await _unitOfWork.Complete();
-            await _unitOfWork.CommitTransaction();
-            var respose = _mapper.Map<UserDto>(user);
-            return ApiResponse<UserDto>.SuccessResponse(respose, "User added successfully", 201);
-        }
-        public async Task<ApiResponse<UserDto>> UpdateUserAsync(User user)
-        {
-            await _unitOfWork.BeginTransaction();
-            _unitOfWork.UserRepository.Update(user);
-            await _unitOfWork.Complete();
-            await _unitOfWork.CommitTransaction();
-            var respose = _mapper.Map<UserDto>(user);
-            return ApiResponse<UserDto>.SuccessResponse(respose, "User updated successfully");
-        }
-
-        public async Task<ApiResponse<UserDto>> DeleteUserAsync(int id)
-        {
-            var response = await GetUserByIdAsync(id);
-            if (response.Data == null)
-            {
-                return ApiResponse<UserDto>.FailureResponse("User not found", 404);
-            }
-            await _unitOfWork.BeginTransaction();
-            await _unitOfWork.UserRepository.DeleteAsync(id);
-            await _unitOfWork.Complete();
-            await _unitOfWork.CommitTransaction();
-            return ApiResponse<UserDto>.SuccessResponse(response.Data, "User deleted successfully");
-        }
-
         public async Task<ApiResponse<JuryDto>> GetJuryByIdAsync(int id)
         {
             var jury = await _unitOfWork.JuryRepository.GetByIdAsync(id);

@@ -8,7 +8,6 @@ namespace Podium.Application.MappingProfiles
     {
         public MappingProfile()
         {
-            CreateMap<User, UserDto>().ReverseMap();
             CreateMap<Participant, ParticipantDto>().ReverseMap();
             CreateMap<Jury, JuryDto>().ReverseMap();
             CreateMap<Topic, TopicDto>().ReverseMap();

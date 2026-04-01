@@ -8,7 +8,6 @@ namespace Podium.Infrastructure.Respositories
     {
         private readonly PodiumContext _context;
 
-        private readonly GenericRepository<User> _userRepository;
         private readonly GenericRepository<Jury> _juryRepository;
         private readonly GenericRepository<Participant> _participantRepository;
 
@@ -20,7 +19,6 @@ namespace Podium.Infrastructure.Respositories
         private readonly GenericRepository<DebateJuries> _debateJuriesRepository;
 
         public UnitOfWork(PodiumContext context,
-            GenericRepository<User> userRepository,
             GenericRepository<Jury> juryRepository,
             GenericRepository<Participant> participantRepository,
             GenericRepository<Attendance> attendanceRepository,
@@ -32,7 +30,6 @@ namespace Podium.Infrastructure.Respositories
             )
         {
             _context = context;
-            _userRepository = userRepository;
             _juryRepository = juryRepository;
             _participantRepository = participantRepository;
             _attendanceRepository = attendanceRepository;
@@ -43,7 +40,6 @@ namespace Podium.Infrastructure.Respositories
             _topicRepository = topicRepository;
         }
 
-        public GenericRepository<User> UserRepository => _userRepository;
         public GenericRepository<Jury> JuryRepository => _juryRepository;
         public GenericRepository<Participant> ParticipantRepository => _participantRepository;
         public GenericRepository<Attendance> AttendanceRepository => _attendanceRepository;
