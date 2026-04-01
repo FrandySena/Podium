@@ -1,8 +1,6 @@
-﻿using Podium.Domain.Entities.Sessions;
-
-namespace Podium.Application
+﻿namespace Podium.Application
 {
-    public class JuryDto : UserDto
+    public class JuryDto
     {
         public string Experience { get; set; }
         public virtual ICollection<DebateJuriesDto> Debates { get; set; } = new List<DebateJuriesDto>();

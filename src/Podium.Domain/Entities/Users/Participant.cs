@@ -2,9 +2,18 @@
 
 namespace Podium.Domain.Entities.Users
 {
-    public class Participant : User
+    public class Participant
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string LastName { get; set; }
+        public int Age { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public DateTime CreatedAt { get; set; }
         public string Level { get; set; }
+
         public virtual ICollection<DebateParticipants> Debates { get; set; } = new List<DebateParticipants>();
         public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
         public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();

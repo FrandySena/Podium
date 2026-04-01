@@ -1,6 +1,6 @@
 ﻿namespace Podium.Application
 {
-    public class ParticipantDto : UserDto
+    public class ParticipantDto
     {
         public string Level { get; set; }
         public virtual ICollection<DebateParticipantsDto> Debates { get; set; } = new List<DebateParticipantsDto>();

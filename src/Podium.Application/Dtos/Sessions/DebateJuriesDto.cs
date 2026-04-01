@@ -1,7 +1,4 @@
-﻿using Podium.Domain.Entities.Sessions;
-using Podium.Domain.Entities.Users;
-
-namespace Podium.Application
+﻿namespace Podium.Application
 {
     public class DebateJuriesDto
     {
