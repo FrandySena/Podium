@@ -8,7 +8,7 @@
         public int Age { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public string PasswordHash { get; set; }
+        public string Password { get; set; }
         public DateTime CreatedAt { get; set; }
         public string Experience { get; set; }
         public virtual ICollection<DebateJuriesDto> Debates { get; set; } = new List<DebateJuriesDto>();

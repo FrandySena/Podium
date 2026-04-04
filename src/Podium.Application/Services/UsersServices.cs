@@ -35,7 +35,7 @@ namespace Podium.Application.Services
 
         public async Task<ApiResponse<JuryDto>> AddJuryAsync(JuryDto juryRequest)
         {
-            if (string.IsNullOrEmpty(juryRequest.Name) || string.IsNullOrEmpty(juryRequest.LastName) || string.IsNullOrEmpty(juryRequest.Email) || string.IsNullOrEmpty(juryRequest.PasswordHash))
+            if (string.IsNullOrEmpty(juryRequest.Name) || string.IsNullOrEmpty(juryRequest.LastName) || string.IsNullOrEmpty(juryRequest.Email) || string.IsNullOrEmpty(juryRequest.Password))
             {
                 return ApiResponse<JuryDto>.FailureResponse("Name, LastName, Email, and Password are required fields", 400);
             }
@@ -55,7 +55,7 @@ namespace Podium.Application.Services
         }
         public async Task<ApiResponse<JuryDto>> UpdateJuryAsync(int id, JuryDto juryRequest)
         {
-            if (string.IsNullOrEmpty(juryRequest.Name) || string.IsNullOrEmpty(juryRequest.LastName) || string.IsNullOrEmpty(juryRequest.Email) || string.IsNullOrEmpty(juryRequest.PasswordHash))
+            if (string.IsNullOrEmpty(juryRequest.Name) || string.IsNullOrEmpty(juryRequest.LastName) || string.IsNullOrEmpty(juryRequest.Email) || string.IsNullOrEmpty(juryRequest.Password))
             {
                 return ApiResponse<JuryDto>.FailureResponse("Name, LastName, Email, and Password are required fields", 400);
             }
@@ -126,7 +126,7 @@ namespace Podium.Application.Services
 
         public async Task<ApiResponse<ParticipantDto>> AddParticipantAsync(ParticipantDto participantRequest)
         {
-            if (string.IsNullOrEmpty(participantRequest.Name) || string.IsNullOrEmpty(participantRequest.LastName) || string.IsNullOrEmpty(participantRequest.Email) || string.IsNullOrEmpty(participantRequest.PasswordHash))
+            if (string.IsNullOrEmpty(participantRequest.Name) || string.IsNullOrEmpty(participantRequest.LastName) || string.IsNullOrEmpty(participantRequest.Email) || string.IsNullOrEmpty(participantRequest.Password))
             {
                 return ApiResponse<ParticipantDto>.FailureResponse("Name, LastName, Email, and Password are required fields", 400);
             }
@@ -146,7 +146,7 @@ namespace Podium.Application.Services
         }
         public async Task<ApiResponse<ParticipantDto>> UpdateParticipantAsync(int id, ParticipantDto participantDto)
         {
-            if (string.IsNullOrEmpty(participantDto.Name) || string.IsNullOrEmpty(participantDto.LastName) || string.IsNullOrEmpty(participantDto.Email) || string.IsNullOrEmpty(participantDto.PasswordHash))
+            if (string.IsNullOrEmpty(participantDto.Name) || string.IsNullOrEmpty(participantDto.LastName) || string.IsNullOrEmpty(participantDto.Email) || string.IsNullOrEmpty(participantDto.Password))
             {
                 return ApiResponse<ParticipantDto>.FailureResponse("Name, LastName, Email, and Password are required fields", 400);
             }

@@ -22,7 +22,7 @@ namespace Podium.Domain.Entities.Users
         public string Email { get; set; }
 
         [StringLength(int.MaxValue)]
-        public string PasswordHash { get; set; }
+        public string Password { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [StringLength(500)]
