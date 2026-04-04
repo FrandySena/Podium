@@ -9,7 +9,7 @@ namespace Podium.Application
         public int ParticipantId { get; set; }
         public int DebateId { get; set; }
         public bool IsPresent { get; set; }
-        public virtual Participant Participant { get; set; }
-        public virtual Debate Debate { get; set; }
+        //public virtual ParticipantDto Participant { get; set; }
+        //public virtual DebateDto Debate { get; set; }
     }
 }

@@ -35,10 +35,10 @@ namespace Podium.Persistence.Migrations
             });
 
             modelBuilder.Entity<DebateParticipants>()
-                .HasKey(dp => new { dp.DebateId, dp.ParticipantId });
+                .HasKey(dp => dp.Id);
 
             modelBuilder.Entity<DebateJuries>()
-                .HasKey(dj => new { dj.DebateId, dj.JuryId });
+                .HasKey(dj => dj.Id);
 
             modelBuilder.Entity<Attendance>()
                 .HasOne(a => a.Participant)

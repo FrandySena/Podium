@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="EntitiesConfiguration\" />
+    <Compile Remove="Migrations\20260401042145_initQUIERODORMIR.cs" />
+    <Compile Remove="Migrations\20260401042145_initQUIERODORMIR.Designer.cs" />
+    <Compile Remove="Migrations\20260404193719_FixDebateParticipantsKey.cs" />
+    <Compile Remove="Migrations\20260404193719_FixDebateParticipantsKey.Designer.cs" />
+    <Compile Remove="Migrations\PodiumContextModelSnapshot.cs" />
   </ItemGroup>
 
   <ItemGroup>
