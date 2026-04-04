@@ -11,11 +11,10 @@ namespace Podium.Domain.Entities.Users
         public string Phone { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string Level { get; set; }
 
         public virtual ICollection<DebateParticipants> Debates { get; set; } = new List<DebateParticipants>();
-        public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
         public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
     }
 }

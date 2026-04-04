@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Podium.Application\Podium.Application.csproj" />
     <ProjectReference Include="..\Podium.Infrastructure\Podium.Infrastructure.csproj" />
   </ItemGroup>
