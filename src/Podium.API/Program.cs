@@ -23,6 +23,8 @@ builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<UsersServices>();
 builder.Services.AddScoped<SessionServices>();
 
+builder.Services.AddScoped<AuthServices>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -46,10 +48,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
-app.MapControllers();
-
 app.UseCors("AllowAll");
+
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();

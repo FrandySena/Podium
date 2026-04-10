@@ -18,7 +18,7 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<JuryDto>> GetJuryByIdAsync(int id)
         {
             var jury = await _unitOfWork.JuryRepository.GetByIdAsync(id);
-            if (jury == null)
+            if (jury == null || jury.IsDeleted)
             {
                 return ApiResponse<JuryDto>.FailureResponse("Jury not found", 404);
             }
@@ -29,7 +29,8 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<JuryDto>>> GetAllJuriesAsync()
         {
             var list = await _unitOfWork.JuryRepository.GetAllAsync();
-            var response = _mapper.Map<IEnumerable<JuryDto>>(list);
+            var activeJuries = list.Where(j => !j.IsDeleted);
+            var response = _mapper.Map<IEnumerable<JuryDto>>(activeJuries);
             return ApiResponse<IEnumerable<JuryDto>>.SuccessResponse(response);
         }
 
@@ -76,7 +77,7 @@ namespace Podium.Application.Services
             }
 
             var existingJury = await _unitOfWork.JuryRepository.GetByIdAsync(id);
-            if (existingJury == null)
+            if (existingJury == null || existingJury.IsDeleted)
             {
                 return ApiResponse<JuryDto>.FailureResponse("Jury not found", 404);
             }
@@ -100,7 +101,15 @@ namespace Podium.Application.Services
                 return ApiResponse<JuryDto>.FailureResponse("Jury not found", 404);
             }
             await _unitOfWork.BeginTransaction();
-            await _unitOfWork.JuryRepository.DeleteAsync(id);
+            var jury = await _unitOfWork.JuryRepository.GetByIdAsync(id);
+            if (jury == null)
+            {
+                return ApiResponse<JuryDto>.FailureResponse("Jury not found", 404);
+            }
+
+            jury.IsDeleted = true;
+            _unitOfWork.JuryRepository.Update(jury);
+
             await _unitOfWork.Complete();
             await _unitOfWork.CommitTransaction();
             return ApiResponse<JuryDto>.SuccessResponse(response.Data, "Jury deleted successfully");
@@ -109,7 +118,7 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<ParticipantDto>> GetParticipantByIdAsync(int id)
         {
             var participant = await _unitOfWork.ParticipantRepository.GetByIdAsync(id);
-            if (participant == null)
+            if (participant == null || participant.IsDeleted)
             {
                 return ApiResponse<ParticipantDto>.FailureResponse("Participant not found", 404);
             }
@@ -120,7 +129,8 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<ParticipantDto>>> GetAllParticipantsAsync()
         {
             var list = await _unitOfWork.ParticipantRepository.GetAllAsync();
-            var response = _mapper.Map<IEnumerable<ParticipantDto>>(list);
+            var activeParticipants = list.Where(p => !p.IsDeleted);
+            var response = _mapper.Map<IEnumerable<ParticipantDto>>(activeParticipants);
             return ApiResponse<IEnumerable<ParticipantDto>>.SuccessResponse(response);
         }
 
@@ -158,7 +168,7 @@ namespace Podium.Application.Services
 
             if (participantDto == null)
             {
-                return ApiResponse<ParticipantDto>.FailureResponse("Participant data is required for update", 400); 
+                return ApiResponse<ParticipantDto>.FailureResponse("Participant data is required for update", 400);
             }
 
             if (participantDto.Age <= 0)
@@ -167,7 +177,7 @@ namespace Podium.Application.Services
             }
 
             var existingParticipant = await _unitOfWork.ParticipantRepository.GetByIdAsync(id);
-            if (existingParticipant == null)
+            if (existingParticipant == null || existingParticipant.IsDeleted)
             {
                 return ApiResponse<ParticipantDto>.FailureResponse("Participant not found", 404);
             }
@@ -193,7 +203,15 @@ namespace Podium.Application.Services
             }
 
             await _unitOfWork.BeginTransaction();
-            await _unitOfWork.ParticipantRepository.DeleteAsync(id);
+            var participant = await _unitOfWork.ParticipantRepository.GetByIdAsync(id);
+            if (participant == null)
+            {
+                return ApiResponse<ParticipantDto>.FailureResponse("Participant not found", 404);
+            }
+
+            participant.IsDeleted = true;
+            _unitOfWork.ParticipantRepository.Update(participant);
+
             await _unitOfWork.Complete();
             await _unitOfWork.CommitTransaction();
             return ApiResponse<ParticipantDto>.SuccessResponse(response.Data, "Participant deleted successfully");

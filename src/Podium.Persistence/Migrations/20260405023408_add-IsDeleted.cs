@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Podium.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class FixDebateParticipantsKey : Migration
+    public partial class addIsDeleted : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,9 +22,10 @@ namespace Podium.Persistence.Migrations
                     Age = table.Column<int>(type: "int", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Experience = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Experience = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,14 +38,15 @@ namespace Podium.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Age = table.Column<int>(type: "int", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Level = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,7 +60,8 @@ namespace Podium.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,7 +78,8 @@ namespace Podium.Persistence.Migrations
                     Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ScheduledAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    Location = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,7 +100,8 @@ namespace Podium.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ParticipantId = table.Column<int>(type: "int", nullable: false),
                     DebateId = table.Column<int>(type: "int", nullable: false),
-                    IsPresent = table.Column<bool>(type: "bit", nullable: false)
+                    IsPresent = table.Column<bool>(type: "bit", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -122,7 +127,8 @@ namespace Podium.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DebateId = table.Column<int>(type: "int", nullable: false),
-                    JuryId = table.Column<int>(type: "int", nullable: false)
+                    JuryId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -149,7 +155,8 @@ namespace Podium.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DebateId = table.Column<int>(type: "int", nullable: false),
                     ParticipantId = table.Column<int>(type: "int", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Role = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,7 +184,8 @@ namespace Podium.Persistence.Migrations
                     JuryId = table.Column<int>(type: "int", nullable: false),
                     DebateId = table.Column<int>(type: "int", nullable: false),
                     Score = table.Column<int>(type: "int", nullable: false),
-                    Observation = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    Observation = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

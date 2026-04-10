@@ -1,0 +1,265 @@
+﻿@page "/evaluations"
+@using Podium.Application
+@using Podium.Application.Responses
+@inject HttpClient Http
+
+<PageTitle>Evaluations - Podium</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Evaluations Management</h1>
+        <div class="d-flex gap-2">
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="number" class="form-control" placeholder="Search by ID..." @bind="searchId" />
+                <button class="btn btn-outline-primary" @onclick="FetchEvaluationById">Search</button>
+            </div>
+            <button class="btn btn-success" @onclick="ShowCreateForm">New Evaluation</button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+
+    @if (showDetails && selectedEvaluation != null)
+    {
+        <div class="card mb-4 border-info shadow-sm bg-light">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Evaluation Details (ID: @selectedEvaluation.Id)</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="CloseDetails"></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Jury ID:</strong> @selectedEvaluation.JuryId</p>
+                        <p><strong>Debate ID:</strong> @selectedEvaluation.DebateId</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Score:</strong> <span class="badge bg-primary">@selectedEvaluation.Score</span></p>
+                        <p><strong>Observation:</strong> @selectedEvaluation.Observation</p>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" @onclick="CloseDetails">Close Details</button>
+            </div>
+        </div>
+    }
+
+    @if (showForm)
+    {
+        <div class="card mb-4 shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                @(isEditing ? "Edit Evaluation" : "Register New Evaluation")
+            </div>
+            <div class="card-body">
+                <EditForm Model="@currentEvaluation" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Jury ID</label>
+                            <InputNumber @bind-Value="currentEvaluation.JuryId" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Debate ID</label>
+                            <InputNumber @bind-Value="currentEvaluation.DebateId" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Score</label>
+                            <InputNumber @bind-Value="currentEvaluation.Score" class="form-control" />
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Observation</label>
+                            <InputTextArea @bind-Value="currentEvaluation.Observation" class="form-control" rows="3" />
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Save Evaluation</button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseForm">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @if (evaluations == null)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Loading data...</p>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover shadow-sm border">
+            <thead class="table-dark">
+                <tr>
+                    <th>Jury</th>
+                    <th>Debate</th>
+                    <th>Score</th>
+                    <th>Observation</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in evaluations)
+                {
+                    <tr>
+                        <td class="align-middle">ID: @ev.JuryId</td>
+                        <td class="align-middle">ID: @ev.DebateId</td>
+                        <td class="align-middle"><span class="badge bg-primary">@ev.Score</span></td>
+                        <td class="align-middle text-truncate" style="max-width: 200px;">@ev.Observation</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-info me-1" @onclick="() => ViewDetails(ev)">View</button>
+                            <button class="btn btn-sm btn-warning me-1" @onclick="() => EditEvaluation(ev)">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteEvaluation(ev.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<EvaluationDto>? evaluations;
+    private EvaluationDto currentEvaluation = new();
+    private EvaluationDto? selectedEvaluation;
+    private bool showForm = false;
+    private bool isEditing = false;
+    private bool showDetails = false;
+    private int? searchId;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvaluations();
+    }
+
+    private async Task LoadEvaluations()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<IEnumerable<EvaluationDto>>>("api/Evaluations");
+            if (response != null && response.Success)
+            {
+                evaluations = response.Data.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error: " + ex.Message;
+        }
+    }
+
+    private async Task FetchEvaluationById()
+    {
+        if (searchId == null || searchId <= 0)
+        {
+            errorMessage = "Enter a valid ID.";
+            return;
+        }
+
+        errorMessage = null;
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<EvaluationDto>>($"api/Evaluations/{searchId}");
+            if (response != null && response.Success)
+            {
+                selectedEvaluation = response.Data;
+                showDetails = true;
+                showForm = false;
+                searchId = null;
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "Not found.";
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "Error searching ID.";
+        }
+    }
+
+    private async Task HandleSave()
+    {
+        try
+        {
+            HttpResponseMessage response;
+            if (isEditing)
+            {
+                response = await Http.PutAsJsonAsync($"api/Evaluations/{currentEvaluation.Id}", currentEvaluation);
+            }
+            else
+            {
+                response = await Http.PostAsJsonAsync("api/Evaluations", currentEvaluation);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadEvaluations();
+                CloseForm();
+            }
+            else
+            {
+                errorMessage = "Check fields.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Failed: " + ex.Message;
+        }
+    }
+
+    private async Task DeleteEvaluation(int id)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Evaluations/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadEvaluations();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Delete failed: " + ex.Message;
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        currentEvaluation = new EvaluationDto();
+        isEditing = false;
+        showDetails = false;
+        showForm = true;
+    }
+
+    private void EditEvaluation(EvaluationDto ev)
+    {
+        currentEvaluation = new EvaluationDto
+        {
+            Id = ev.Id,
+            JuryId = ev.JuryId,
+            DebateId = ev.DebateId,
+            Score = ev.Score,
+            Observation = ev.Observation
+        };
+        isEditing = true;
+        showDetails = false;
+        showForm = true;
+    }
+
+    private void ViewDetails(EvaluationDto ev)
+    {
+        selectedEvaluation = ev;
+        showDetails = true;
+        showForm = false;
+    }
+
+    private void CloseForm() => showForm = false;
+    private void CloseDetails() => showDetails = false;
+}

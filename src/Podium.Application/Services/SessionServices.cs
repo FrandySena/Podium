@@ -21,7 +21,7 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<AttendanceDto>> GetAttendanceByIdAsync(int id)
         {
             var attendance = await _unitOfWork.AttendanceRepository.GetByIdAsync(id);
-            if (attendance == null)
+            if (attendance == null || attendance.IsDeleted)
             {
                 return ApiResponse<AttendanceDto>.FailureResponse("Attendance not found", 404);
             }
@@ -33,7 +33,8 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<AttendanceDto>>> GetAllAttendancesAsync()
         {
             var list = await _unitOfWork.AttendanceRepository.GetAllAsync();
-            var response = _mapper.Map<IEnumerable<AttendanceDto>>(list);
+            var activeAttendances = list.Where(a => !a.IsDeleted);
+            var response = activeAttendances.Select(attendance => _mapper.Map<AttendanceDto>(attendance)).ToList();
             return ApiResponse<IEnumerable<AttendanceDto>>.SuccessResponse(response);
         }
 
@@ -90,7 +91,7 @@ namespace Podium.Application.Services
             }
 
             var existingAttendance = await _unitOfWork.AttendanceRepository.GetByIdAsync(id);
-            if (existingAttendance == null)
+            if (existingAttendance == null || existingAttendance.IsDeleted)
             {
                 return ApiResponse<AttendanceDto>.FailureResponse("Attendance not found", 404);
             }
@@ -121,7 +122,16 @@ namespace Podium.Application.Services
             if (!response.Success) return response;
 
             await _unitOfWork.BeginTransaction();
-            await _unitOfWork.AttendanceRepository.DeleteAsync(id);
+
+            var attendanceToDelete = await _unitOfWork.AttendanceRepository.GetByIdAsync(id);
+            if (attendanceToDelete == null)
+            {
+                return ApiResponse<AttendanceDto>.FailureResponse("Attendance not found for deletion", 404);
+            }
+
+            attendanceToDelete.IsDeleted = true;
+            _unitOfWork.AttendanceRepository.Update(attendanceToDelete);
+
             await _unitOfWork.Complete();
             await _unitOfWork.CommitTransaction();
 
@@ -133,7 +143,7 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<DebateDto>> GetDebateByIdAsync(int id)
         {
             var debate = await _unitOfWork.DebateRepository.GetByIdAsync(id);
-            if (debate == null)
+            if (debate == null || debate.IsDeleted)
             {
                 return ApiResponse<DebateDto>.FailureResponse("Debate not found", 404);
             }
@@ -145,7 +155,8 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<DebateDto>>> GetAllDebatesAsync()
         {
             var list = await _unitOfWork.DebateRepository.GetAllAsync();
-            var debatesDto = _mapper.Map<IEnumerable<DebateDto>>(list);
+            var activeDebates = list.Where(d => !d.IsDeleted);
+            var debatesDto = _mapper.Map<IEnumerable<DebateDto>>(activeDebates);
             return ApiResponse<IEnumerable<DebateDto>>.SuccessResponse(debatesDto);
         }
 
@@ -181,7 +192,7 @@ namespace Podium.Application.Services
                 return ApiResponse<DebateDto>.FailureResponse("Valid debate ID is mismatch", 400);
             }
             var existingDebate = await _unitOfWork.DebateRepository.GetByIdAsync(id);
-            if (existingDebate == null)
+            if (existingDebate == null || existingDebate.IsDeleted)
             {
                 return ApiResponse<DebateDto>.FailureResponse("Debate not found", 404);
             }
@@ -211,7 +222,16 @@ namespace Podium.Application.Services
             if (debate != null)
             {
                 await _unitOfWork.BeginTransaction();
-                await _unitOfWork.DebateRepository.DeleteAsync(id);
+
+                var debateToDelete = await _unitOfWork.DebateRepository.GetByIdAsync(id);
+                if (debateToDelete == null)
+                {
+                    return ApiResponse<DebateDto>.FailureResponse("Debate not found for deletion", 404);
+                }
+
+                debateToDelete.IsDeleted = true;
+                _unitOfWork.DebateRepository.Update(debateToDelete);
+
                 await _unitOfWork.Complete();
                 await _unitOfWork.CommitTransaction();
             }
@@ -229,7 +249,10 @@ namespace Podium.Application.Services
                 d => d.Juries,
                 d => d.Evaluations
             );
-            var response = debates.Select(debate => _mapper.Map<DebateDto>(debate)).ToList();
+
+            var activeDebates = debates.Where(d => !d.IsDeleted).ToList();
+
+            var response = activeDebates.Select(debate => _mapper.Map<DebateDto>(debate)).ToList();
             return ApiResponse<IEnumerable<DebateDto>>.SuccessResponse(response);
         }
 
@@ -242,7 +265,10 @@ namespace Podium.Application.Services
                 d => d.Juries,
                 d => d.Evaluations
             );
-            var debate = debates.FirstOrDefault(d => d.Id == id);
+
+            var activeDebates = debates.Where(d => !d.IsDeleted).ToList();
+
+            var debate = activeDebates.FirstOrDefault(d => d.Id == id);
             var response = _mapper.Map<DebateDto>(debate);
             return ApiResponse<DebateDto>.SuccessResponse(response);
         }
@@ -250,8 +276,9 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<DebateJuriesDto>>> GetJueriesByDebateAsync(int debateId)
         {
             var debates = await _unitOfWork.DebateRepository.GetAllIncludingAsync(d => d.Juries);
-            var debate = debates.FirstOrDefault(d => d.Id == debateId);
-            if (debate == null)
+            var activeDebates = debates.Where(d => !d.IsDeleted).ToList();
+            var debate = activeDebates.FirstOrDefault(d => d.Id == debateId);
+            if (debate == null || debate.IsDeleted)
             {
                 return ApiResponse<IEnumerable<DebateJuriesDto>>.FailureResponse("Debate not found", 404);
             }
@@ -262,8 +289,9 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<DebateParticipantsDto>>> GetParticipantsByDebateAsync(int debateId)
         {
             var debates = await _unitOfWork.DebateRepository.GetAllIncludingAsync(d => d.Participants);
-            var debate = debates.FirstOrDefault(d => d.Id == debateId);
-            if (debate == null)
+            var activeDebates = debates.Where(d => !d.IsDeleted).ToList();
+            var debate = activeDebates.FirstOrDefault(d => d.Id == debateId);
+            if (debate == null || debate.IsDeleted)
             {
                 return ApiResponse<IEnumerable<DebateParticipantsDto>>.FailureResponse("Debate not found", 404);
             }
@@ -328,7 +356,7 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<EvaluationDto>> GetEvaluationByIdAsync(int id)
         {
             var evaluation = await _unitOfWork.EvaluationsRepository.GetByIdAsync(id);
-            if (evaluation == null)
+            if (evaluation == null || evaluation.IsDeleted)
                 return ApiResponse<EvaluationDto>.FailureResponse("Evaluation not found", 404);
 
             var response = _mapper.Map<EvaluationDto>(evaluation);
@@ -338,7 +366,8 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<EvaluationDto>>> GetAllEvaluationsAsync()
         {
             var evaluations = await _unitOfWork.EvaluationsRepository.GetAllAsync();
-            var response = evaluations.Select(evaluation => _mapper.Map<EvaluationDto>(evaluation)).ToList();
+            var activeEvaluations = evaluations.Where(e => !e.IsDeleted);
+            var response = activeEvaluations.Select(evaluation => _mapper.Map<EvaluationDto>(evaluation)).ToList();
             return ApiResponse<IEnumerable<EvaluationDto>>.SuccessResponse(response);
         }
 
@@ -378,7 +407,7 @@ namespace Podium.Application.Services
                 return ApiResponse<EvaluationDto>.FailureResponse("Score must be between 0 and 100", 400);
             }
             var existingEvaluation = await _unitOfWork.EvaluationsRepository.GetByIdAsync(id);
-            if (existingEvaluation == null)
+            if (existingEvaluation == null || existingEvaluation.IsDeleted)
             {
                 return ApiResponse<EvaluationDto>.FailureResponse("Evaluation not found", 404);
             }
@@ -398,7 +427,15 @@ namespace Podium.Application.Services
             if (evaluation != null)
             {
                 await _unitOfWork.BeginTransaction();
-                await _unitOfWork.EvaluationsRepository.DeleteAsync(id);
+                var evaluationToDelete = await _unitOfWork.EvaluationsRepository.GetByIdAsync(id);
+                if (evaluationToDelete == null)
+                {
+                    return ApiResponse<EvaluationDto>.FailureResponse("Evaluation not found for deletion", 404);
+                }
+                
+                evaluationToDelete.IsDeleted = true;
+                _unitOfWork.EvaluationsRepository.Update(evaluationToDelete);
+
                 await _unitOfWork.Complete();
                 await _unitOfWork.CommitTransaction();
             }
@@ -411,14 +448,15 @@ namespace Podium.Application.Services
         public async Task<ApiResponse<IEnumerable<TopicDto>>> GetAllTopicsAsync()
         {
             var topics = await _unitOfWork.Topics.GetAllAsync();
-            var response = topics.Select(topic => _mapper.Map<TopicDto>(topic)).ToList();
+            var activeTopics = topics.Where(t => !t.IsDeleted);
+            var response = activeTopics.Select(topic => _mapper.Map<TopicDto>(topic)).ToList();
             return ApiResponse<IEnumerable<TopicDto>>.SuccessResponse(response);
         }
 
         public async Task<ApiResponse<TopicDto>> GetTopicByIdAsync(int id)
         {
             var topic = await _unitOfWork.Topics.GetByIdAsync(id);
-            if (topic == null)
+            if (topic == null || topic.IsDeleted)
                 return ApiResponse<TopicDto>.FailureResponse("Topic not found", 404);
             var response = _mapper.Map<TopicDto>(topic);
             return ApiResponse<TopicDto>.SuccessResponse(response);
@@ -456,7 +494,7 @@ namespace Podium.Application.Services
                 return ApiResponse<TopicDto>.FailureResponse("Topic data is required for update", 400);
             }
             var existingTopic = await _unitOfWork.Topics.GetByIdAsync(id);
-            if (existingTopic == null)
+            if (existingTopic == null || existingTopic.IsDeleted)
             {
                 return ApiResponse<TopicDto>.FailureResponse("Topic not found", 404);
             }
@@ -476,7 +514,16 @@ namespace Podium.Application.Services
             if (topic != null)
             {
                 await _unitOfWork.BeginTransaction();
-                await _unitOfWork.Topics.DeleteAsync(id);
+                var topicToDelete = await _unitOfWork.Topics.GetByIdAsync(id);
+
+                if (topicToDelete == null)
+                {
+                    return ApiResponse<TopicDto>.FailureResponse("Topic not found for deletion", 404);
+                }
+                topicToDelete.IsDeleted = true;
+
+                _unitOfWork.Topics.Update(topicToDelete);
+
                 await _unitOfWork.Complete();
                 await _unitOfWork.CommitTransaction();
             }

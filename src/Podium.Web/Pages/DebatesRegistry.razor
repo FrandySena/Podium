@@ -1,0 +1,129 @@
+﻿@page "/debates/registry"
+@using Podium.Application.Responses
+@using Podium.Application
+@inject HttpClient Http
+
+<PageTitle>Participants & Juries Registry - Podium</PageTitle>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Assignments by User ID</h1>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-bounding-box"></i> Search Participant</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" placeholder="Enter Participant ID..." @bind="searchParticipantId" />
+                        <button class="btn btn-primary" @onclick="SearchByParticipantId">Find Debates</button>
+                    </div>
+                    
+                    @if (filteredByParticipant != null)
+                    {
+                        <div class="list-group">
+                            @if (filteredByParticipant.Any())
+                            {
+                                @foreach (var d in filteredByParticipant)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@d.Title</strong>
+                                            <span class="badge bg-info text-dark">ID Debate: @d.Id</span>
+                                        </div>
+                                        @foreach (var p in d.Participants.Where(x => x.ParticipantId == searchParticipantId))
+                                        {
+                                            <p class="mb-0 mt-1 small text-muted"><strong>Role:</strong> @p.Role</p>
+                                        }
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="alert alert-light border text-center">No debates found for Participant #@searchParticipantId</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-dark">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Search Jury</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="number" class="form-control" placeholder="Enter Jury ID..." @bind="searchJuryId" />
+                        <button class="btn btn-dark" @onclick="SearchByJuryId">Find Debates</button>
+                    </div>
+
+                    @if (filteredByJury != null)
+                    {
+                        <div class="list-group">
+                            @if (filteredByJury.Any())
+                            {
+                                @foreach (var d in filteredByJury)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>@d.Title</strong>
+                                            <span class="badge bg-secondary">ID Debate: @d.Id</span>
+                                        </div>
+                                        <p class="mb-0 small text-muted">Active as Jury member</p>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="alert alert-light border text-center">No debates found for Jury #@searchJuryId</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<DebateDto>? allDebates;
+    private IEnumerable<DebateDto>? filteredByParticipant;
+    private IEnumerable<DebateDto>? filteredByJury;
+
+    private int? searchParticipantId;
+    private int? searchJuryId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var res = await Http.GetFromJsonAsync<ApiResponse<IEnumerable<DebateDto>>>("api/Debates/AllDebatesWithDetail");
+            if (res != null && res.Success)
+            {
+                allDebates = res.Data.ToList();
+            }
+        }
+        catch (Exception) {}
+    }
+
+    private void SearchByParticipantId()
+    {
+        if (allDebates == null || searchParticipantId == null) return;
+        
+        filteredByParticipant = allDebates
+            .Where(d => d.Participants != null && d.Participants.Any(p => p.ParticipantId == searchParticipantId))
+            .ToList();
+    }
+
+    private void SearchByJuryId()
+    {
+        if (allDebates == null || searchJuryId == null) return;
+
+        filteredByJury = allDebates
+            .Where(d => d.Juries != null && d.Juries.Any(j => j.JuryId == searchJuryId))
+            .ToList();
+    }
+}

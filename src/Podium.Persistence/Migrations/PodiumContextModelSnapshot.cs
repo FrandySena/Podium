@@ -33,6 +33,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsPresent")
                         .HasColumnType("bit");
 
@@ -59,6 +62,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .HasMaxLength(500)
@@ -93,6 +99,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("JuryId")
                         .HasColumnType("int");
 
@@ -115,6 +124,9 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("ParticipantId")
                         .HasColumnType("int");
@@ -143,6 +155,9 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("JuryId")
                         .HasColumnType("int");
@@ -174,6 +189,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -208,6 +226,9 @@ namespace Podium.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -252,6 +273,9 @@ namespace Podium.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()

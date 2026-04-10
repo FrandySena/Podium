@@ -12,6 +12,7 @@ namespace Podium.Domain.Entities.Sessions
 
         [StringLength(100)]
         public string Role { get; set; }
+        public bool IsDeleted { get; set; }
         public virtual Debate Debate { get; set; }
         public virtual Participant Participant { get; set; }
     }
