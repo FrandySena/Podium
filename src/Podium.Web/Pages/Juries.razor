@@ -1,0 +1,295 @@
+﻿@page "/juries"
+@using Podium.Application
+@using Podium.Application.Dtos.Auth
+@using Podium.Application.Responses
+@inject HttpClient Http
+
+<PageTitle>Juries Management - Podium</PageTitle>
+
+<div class="container mt-4">
+    @* Header Section with Title, Search and Create Button *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Juries Management</h1>
+        <div class="d-flex gap-2">
+            @* Search by ID Input Group *@
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="number" class="form-control" placeholder="Search by ID..." @bind="searchId" />
+                <button class="btn btn-outline-primary" @onclick="FetchJuryById">Search</button>
+            </div>
+            <button class="btn btn-success" @onclick="ShowCreateForm">New Jury</button>
+        </div>
+    </div>
+
+    @* Alert for Search or Error Messages *@
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+
+    @* Detail View Card: Displays full info when a jury is selected or searched *@
+    @if (showDetails && selectedJury != null)
+    {
+        <div class="card mb-4 border-info shadow-sm bg-light">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Jury Details (ID: @selectedJury.Id)</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="CloseDetails"></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Full Name:</strong> @selectedJury.Name @selectedJury.LastName</p>
+                        <p><strong>Email:</strong> @selectedJury.Email</p>
+                        <p><strong>Age:</strong> @selectedJury.Age</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Phone:</strong> @selectedJury.Phone</p>
+                        <p><strong>Experience:</strong> <span class="badge bg-info text-dark">@selectedJury.Experience</span></p>
+                        <p><strong>Created At:</strong> @DateTime.Now.ToShortDateString()</p>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" @onclick="CloseDetails">Close Details</button>
+            </div>
+        </div>
+    }
+
+    @* Form for Create/Edit Operations *@
+    @if (showForm)
+    {
+        <div class="card mb-4 shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                @(isEditing ? "Edit Jury" : "Register New Jury")
+            </div>
+            <div class="card-body">
+                <EditForm Model="@currentJury" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name</label>
+                            <InputText @bind-Value="currentJury.Name" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last Name</label>
+                            <InputText @bind-Value="currentJury.LastName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="currentJury.Email" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <InputText @bind-Value="currentJury.Password" type="password" class="form-control" placeholder="Required for new / Blank to keep current" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Age</label>
+                            <InputNumber @bind-Value="currentJury.Age" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Phone</label>
+                            <InputText @bind-Value="currentJury.Phone" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Experience</label>
+                            <InputText @bind-Value="currentJury.Experience" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Save Jury</button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseForm">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @* Main Juries Table *@
+    @if (juries == null)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Fetching data from server...</p>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover shadow-sm border">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Experience</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in juries)
+                {
+                    <tr>
+                        <td class="align-middle">@p.Name @p.LastName</td>
+                        <td class="align-middle">@p.Email</td>
+                        <td class="align-middle"><span class="badge bg-info text-dark">@p.Experience</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-info me-1" @onclick="() => ViewDetails(p)">View</button>
+                            <button class="btn btn-sm btn-warning me-1" @onclick="() => EditJury(p)">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteJury(p.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<JuryDto>? juries;
+    private JuryDto currentJury = new();
+    private JuryDto? selectedJury;
+    
+    // UI State variables
+    private bool showForm = false;
+    private bool isEditing = false;
+    private bool showDetails = false;
+    private int? searchId;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadJuries();
+    }
+
+    // GET all active juries
+    private async Task LoadJuries()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<IEnumerable<JuryDto>>>("api/Juries");
+            if (response != null && response.Success)
+            {
+                juries = response.Data.ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error loading list: " + ex.Message;
+        }
+    }
+
+    // GET jury by ID (Search function)
+    private async Task FetchJuryById()
+    {
+        if (searchId == null || searchId <= 0)
+        {
+            errorMessage = "Please enter a valid numeric ID.";
+            return;
+        }
+
+        errorMessage = null;
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<JuryDto>>($"api/Juries/{searchId}");
+            if (response != null && response.Success)
+            {
+                selectedJury = response.Data;
+                showDetails = true;
+                showForm = false;
+                searchId = null;
+            }
+            else
+            {
+                errorMessage = response?.Message ?? "Jury not found.";
+            }
+        }
+        catch (Exception)
+        {
+            errorMessage = "ID not found or server error.";
+        }
+    }
+
+    // POST (Create) or PUT (Update) handler
+    private async Task HandleSave()
+    {
+        try
+        {
+            HttpResponseMessage response;
+            if (isEditing)
+            {
+                response = await Http.PutAsJsonAsync($"api/Juries/{currentJury.Id}", currentJury);
+            }
+            else
+            {
+                response = await Http.PostAsJsonAsync("api/Juries", currentJury);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadJuries();
+                CloseForm();
+            }
+            else
+            {
+                errorMessage = "Could not save. Check required fields.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Transaction failed: " + ex.Message;
+        }
+    }
+
+    // DELETE jury (Soft delete via API)
+    private async Task DeleteJury(int id)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Juries/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadJuries();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Delete failed: " + ex.Message;
+        }
+    }
+
+    // UI Helpers
+    private void ShowCreateForm()
+    {
+        currentJury = new JuryDto();
+        isEditing = false;
+        showDetails = false;
+        showForm = true;
+    }
+
+    private void EditJury(JuryDto p)
+    {
+        // Copying values to avoid modifying the table row before saving
+        currentJury = new JuryDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            LastName = p.LastName,
+            Email = p.Email,
+            Age = p.Age,
+            Phone = p.Phone,
+            Experience = p.Experience,
+            Password = p.Password
+        };
+        isEditing = true;
+        showDetails = false;
+        showForm = true;
+    }
+
+    private void ViewDetails(JuryDto p)
+    {
+        selectedJury = p;
+        showDetails = true;
+        showForm = false;
+    }
+
+    private void CloseForm() => showForm = false;
+    private void CloseDetails() => showDetails = false;
+}

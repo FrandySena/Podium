@@ -29,22 +29,26 @@ namespace Podium.Persistence.Migrations
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Debate)
-                .WithMany(d => d.Evaluations)
-                .HasForeignKey(e => e.DebateId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(d => d.Evaluations)
+                    .HasForeignKey(e => e.DebateId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasQueryFilter(e => !e.IsDeleted);
             });
 
-            modelBuilder.Entity<DebateParticipants>()
-                .HasKey(dp => dp.Id);
-
-            modelBuilder.Entity<DebateJuries>()
-                .HasKey(dj => dj.Id);
+            modelBuilder.Entity<DebateParticipants>().HasKey(dp => dp.Id);
+            modelBuilder.Entity<DebateJuries>().HasKey(dj => dj.Id);
 
             modelBuilder.Entity<Attendance>()
                 .HasOne(a => a.Participant)
                 .WithMany(p => p.Attendances)
                 .HasForeignKey(a => a.ParticipantId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Participant>().HasQueryFilter(e => !e.IsDeleted);
+            modelBuilder.Entity<Jury>().HasQueryFilter(e => !e.IsDeleted);
+            modelBuilder.Entity<Debate>().HasQueryFilter(e => !e.IsDeleted);
+            modelBuilder.Entity<Topic>().HasQueryFilter(e => !e.IsDeleted);
         }
     }
 }

@@ -1,0 +1,77 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Podium.Web</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="home">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="participants">
+                <span class="bi bi-people-fill" aria-hidden="true"></span> Participants
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="juries">
+                <span class="bi bi-person-badge-fill" aria-hidden="true"></span> Juries
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="evaluations">
+                <span class="bi bi-star-fill" aria-hidden="true"></span> Evaluations
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="topics">
+                <span class="bi bi-journal-text" aria-hidden="true"></span> Topics
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="debates">
+                <span class="bi bi-megaphone-fill" aria-hidden="true"></span> Debates
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="debates/details">
+                <span class="bi bi-info-circle-fill" aria-hidden="true"></span> Debate Insights
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="debates/registry">
+                <span class="bi bi-person-badge-fill" aria-hidden="true"></span> Assignments
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="attendances">
+                <span class="bi bi-clipboard-check-fill" aria-hidden="true"></span> Attendances
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

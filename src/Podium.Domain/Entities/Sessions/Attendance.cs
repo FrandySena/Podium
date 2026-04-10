@@ -10,6 +10,7 @@ namespace Podium.Domain.Entities.Sessions
         public int ParticipantId { get; set; }
         public int DebateId { get; set; }
         public bool IsPresent { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public virtual Participant Participant { get; set; }
         public virtual Debate Debate { get; set; }
     }

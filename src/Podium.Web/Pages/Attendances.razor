@@ -1,0 +1,186 @@
+﻿@page "/attendances"
+@using Podium.Application.Responses
+@using Podium.Application
+@inject HttpClient Http
+
+<PageTitle>Attendance Management - Podium</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Attendance Registry</h1>
+        <div class="d-flex gap-2">
+            <div class="input-group">
+                <input type="number" class="form-control" placeholder="Search ID..." @bind="searchId" />
+                <button class="btn btn-outline-primary" @onclick="FetchById">Search</button>
+                @if (isFiltered)
+                {
+                    <button class="btn btn-outline-secondary" @onclick="LoadAttendances">Clear</button>
+                }
+            </div>
+            <button class="btn btn-success" @onclick="() => OpenModal()">
+                <i class="bi bi-plus-circle"></i> New
+            </button>
+        </div>
+    </div>
+
+    @if (attendances == null)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Loading...</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle bg-white">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Debate ID</th>
+                        <th>Participant ID</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in attendances)
+                    {
+                        <tr>
+                            <td>@a.Id</td>
+                            <td><span class="badge bg-secondary">#@a.DebateId</span></td>
+                            <td><strong>Participant #@a.ParticipantId</strong></td>
+                            <td>
+                                <span class="badge @(a.IsPresent ? "bg-success" : "bg-danger")">
+                                    @(a.IsPresent ? "Present" : "Absent")
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-warning me-2" @onclick="() => OpenModal(a)">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteAttendance(a.Id)">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (showModal)
+    {
+        <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5)" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header @(isEditing ? "bg-warning" : "bg-success") text-white">
+                        <h5 class="modal-title">@(isEditing ? "Edit Attendance" : "New Attendance")</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Debate ID</label>
+                            <input type="number" class="form-control" @bind="currentAttendance.DebateId" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Participant ID</label>
+                            <input type="number" class="form-control" @bind="currentAttendance.ParticipantId" />
+                        </div>
+                        
+                        @* Corrección del Switch *@
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
+                            <span class="fw-bold">Status: @(currentAttendance.IsPresent ? "Present" : "Absent")</span>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="presentSwitch" style="width: 3em; height: 1.5em; cursor: pointer;"
+                                       @bind="currentAttendance.IsPresent">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                            <button class="btn @(isEditing ? "btn-warning" : "btn-success") px-4" @onclick="Save">
+                                @(isEditing ? "Update Record" : "Save Record")
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+@code {
+    private List<AttendanceDto>? attendances;
+    private AttendanceDto currentAttendance = new();
+    private bool showModal = false;
+    private bool isEditing = false;
+    private int? searchId;
+    private bool isFiltered = false;
+
+    protected override async Task OnInitializedAsync() => await LoadAttendances();
+
+    private async Task LoadAttendances()
+    {
+        isFiltered = false;
+        searchId = null;
+        var res = await Http.GetFromJsonAsync<ApiResponse<IEnumerable<AttendanceDto>>>("api/Attendances");
+        if (res != null && res.Success) attendances = res.Data.ToList();
+    }
+
+    private async Task FetchById()
+    {
+        if (searchId == null) return;
+        var res = await Http.GetFromJsonAsync<ApiResponse<AttendanceDto>>($"api/Attendances/{searchId}");
+        if (res != null && res.Success)
+        {
+            attendances = new List<AttendanceDto> { res.Data };
+            isFiltered = true;
+        }
+    }
+
+    private void OpenModal(AttendanceDto? model = null)
+    {
+        if (model != null)
+        {
+            currentAttendance = new AttendanceDto
+            {
+                Id = model.Id,
+                DebateId = model.DebateId,
+                ParticipantId = model.ParticipantId,
+                IsPresent = model.IsPresent
+            };
+            isEditing = true;
+        }
+        else
+        {
+            currentAttendance = new AttendanceDto { IsPresent = true };
+            isEditing = false;
+        }
+        showModal = true;
+    }
+
+    private void CloseModal() => showModal = false;
+
+    private async Task Save()
+    {
+        HttpResponseMessage response;
+        if (isEditing)
+            response = await Http.PutAsJsonAsync($"api/Attendances/{currentAttendance.Id}", currentAttendance);
+        else
+            response = await Http.PostAsJsonAsync("api/Attendances", currentAttendance);
+
+        if (response.IsSuccessStatusCode)
+        {
+            showModal = false;
+            await LoadAttendances();
+        }
+    }
+
+    private async Task DeleteAttendance(int id)
+    {
+        var response = await Http.DeleteAsync($"api/Attendances/{id}");
+        if (response.IsSuccessStatusCode) await LoadAttendances();
+    }
+}

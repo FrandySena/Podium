@@ -25,6 +25,7 @@ namespace Podium.Domain.Entities.Users
         public string Password { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string Level { get; set; }
+        public bool IsDeleted { get; set; } = false;
 
         public virtual ICollection<DebateParticipants> Debates { get; set; } = new List<DebateParticipants>();
         public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();

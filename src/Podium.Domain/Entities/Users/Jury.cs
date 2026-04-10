@@ -28,6 +28,8 @@ namespace Podium.Domain.Entities.Users
         [StringLength(500)]
         public string Experience { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         public virtual ICollection<DebateJuries> Debates { get; set; } = new List<DebateJuries>();
         public virtual ICollection<Evaluation> Evaluations { get; set; } = new List<Evaluation>();
     }

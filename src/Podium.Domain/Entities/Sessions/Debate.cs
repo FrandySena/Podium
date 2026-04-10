@@ -18,6 +18,7 @@ namespace Podium.Domain.Entities.Sessions
         [StringLength(500)]
         public string? Location { get; set; }
         public Topic? Topic { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
         public virtual ICollection<DebateParticipants> Participants { get; set; } = new List<DebateParticipants>();
         public virtual ICollection<DebateJuries> Juries { get; set; } = new List<DebateJuries>();

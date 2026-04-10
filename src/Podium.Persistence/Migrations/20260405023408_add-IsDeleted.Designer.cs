@@ -12,8 +12,8 @@ using Podium.Persistence.Migrations;
 namespace Podium.Persistence.Migrations
 {
     [DbContext(typeof(PodiumContext))]
-    [Migration("20260404194011_FixDebateParticipantsKey")]
-    partial class FixDebateParticipantsKey
+    [Migration("20260405023408_add-IsDeleted")]
+    partial class addIsDeleted
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPresent")
                         .HasColumnType("bit");
@@ -62,6 +65,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .HasMaxLength(500)
@@ -96,6 +102,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("JuryId")
                         .HasColumnType("int");
 
@@ -118,6 +127,9 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("ParticipantId")
                         .HasColumnType("int");
@@ -146,6 +158,9 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<int>("DebateId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("JuryId")
                         .HasColumnType("int");
@@ -177,6 +192,9 @@ namespace Podium.Persistence.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -212,6 +230,9 @@ namespace Podium.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -222,7 +243,7 @@ namespace Podium.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(2147483647)
                         .HasColumnType("nvarchar(max)");
@@ -253,11 +274,16 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Level")
                         .IsRequired()
@@ -265,15 +291,18 @@ namespace Podium.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
+                        .HasMaxLength(2147483647)
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 

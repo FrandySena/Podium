@@ -1,0 +1,36 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="page">
+    @* Sidebar: Only rendered if NOT on the login page *@
+    @if (!IsLoginPage)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
+
+    <main>
+        @if (!IsLoginPage)
+        {
+            <div class="top-row px-4">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+        }
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    // Logic to identify if the current page is Login
+    private bool IsLoginPage => Navigation.Uri.EndsWith("/") || Navigation.Uri.EndsWith("/login");
+
+    protected override void OnInitialized()
+    {
+        // Re-render the layout when the URL changes (e.g., after logging in)
+        Navigation.LocationChanged += (s, e) => StateHasChanged();
+    }
+}
