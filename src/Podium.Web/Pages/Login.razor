@@ -4,43 +4,54 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card shadow-sm" style="width: 100%; max-width: 400px;">
-        <div class="card-body">
-            <h3 class="card-title text-center mb-4">Login Podium</h3>
-            
-            <EditForm Model="@loginDto" OnValidSubmit="HandleLogin">
-                <DataAnnotationsValidator />
-                
-                <div class="mb-3">
-                    <label class="form-label">User / Email</label>
-                    <InputText @bind-Value="loginDto.Email" class="form-control" placeholder="Enter email" />
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="row w-100 align-items-center justify-content-center" style="max-width: 900px;">
+        
+        <div class="col-md-6 text-center mb-4 mb-md-0">
+            <img src="/Resources/PodiumLogo.png" alt="Podium Logo" class="img-fluid" style="max-width: 300px; filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.1));" />
+            <h2 class="mt-3 fw-bold text-primary">Podium</h2>
+            <p class="text-muted">Management & Debate Excellence</p>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4 fw-bold">Login</h3>
+                    
+                    <EditForm Model="@loginDto" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">User / Email</label>
+                            <InputText @bind-Value="loginDto.Email" class="form-control form-control-lg" placeholder="Enter email" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <InputText @bind-Value="loginDto.Password" type="password" class="form-control form-control-lg" placeholder="Enter password" />
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger py-2 small">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i> @errorMessage
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-2" disabled="@isProcessing">
+                            @if (isProcessing)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span> Loading...</span>
+                            }
+                            else
+                            {
+                                <span>Sign In</span>
+                            }
+                        </button>
+                    </EditForm>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <InputText @bind-Value="loginDto.Password" type="password" class="form-control" placeholder="Enter password" />
-                </div>
-
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger py-2">
-                        @errorMessage
-                    </div>
-                }
-
-                <button type="submit" class="btn btn-primary w-100" disabled="@isProcessing">
-                    @if (isProcessing)
-                    {
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        <span> Loading...</span>
-                    }
-                    else
-                    {
-                        <span>Login</span>
-                    }
-                </button>
-            </EditForm>
+            </div>
         </div>
     </div>
 </div>
@@ -57,7 +68,6 @@
 
         try
         {
-            // Sending POST request to your API Login endpoint
             var response = await Http.PostAsJsonAsync("api/Auth/login", loginDto);
             
             if (response.IsSuccessStatusCode)
@@ -66,7 +76,6 @@
                 
                 if (result != null && result.Success)
                 {
-                    // Redirect to Home after successful login
                     Navigation.NavigateTo("home");
                 }
                 else

@@ -7,11 +7,9 @@
 <PageTitle>Participants Management - Podium</PageTitle>
 
 <div class="container mt-4">
-    @* Header Section with Title, Search and Create Button *@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Participants Management</h1>
         <div class="d-flex gap-2">
-            @* Search by ID Input Group *@
             <div class="input-group input-group-sm" style="width: 250px;">
                 <input type="number" class="form-control" placeholder="Search by ID..." @bind="searchId" />
                 <button class="btn btn-outline-primary" @onclick="FetchParticipantById">Search</button>
@@ -20,7 +18,6 @@
         </div>
     </div>
 
-    @* Alert for Search or Error Messages *@
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -29,7 +26,6 @@
         </div>
     }
 
-    @* Detail View Card: Displays full info when a participant is selected or searched *@
     @if (showDetails && selectedParticipant != null)
     {
         <div class="card mb-4 border-info shadow-sm bg-light">
@@ -55,7 +51,6 @@
         </div>
     }
 
-    @* Form for Create/Edit Operations *@
     @if (showForm)
     {
         <div class="card mb-4 shadow-sm border-primary">
@@ -104,7 +99,6 @@
         </div>
     }
 
-    @* Main Participants Table *@
     @if (participants == null)
     {
         <div class="text-center my-5">
@@ -147,7 +141,6 @@
     private ParticipantDto currentParticipant = new();
     private ParticipantDto? selectedParticipant;
     
-    // UI State variables
     private bool showForm = false;
     private bool isEditing = false;
     private bool showDetails = false;
@@ -159,7 +152,6 @@
         await LoadParticipants();
     }
 
-    // GET all active participants
     private async Task LoadParticipants()
     {
         try
@@ -176,7 +168,6 @@
         }
     }
 
-    // GET participant by ID (Search function)
     private async Task FetchParticipantById()
     {
         if (searchId == null || searchId <= 0)
@@ -207,7 +198,6 @@
         }
     }
 
-    // POST (Create) or PUT (Update) handler
     private async Task HandleSave()
     {
         try
@@ -238,7 +228,6 @@
         }
     }
 
-    // DELETE participant (Soft delete via API)
     private async Task DeleteParticipant(int id)
     {
         try
@@ -255,7 +244,6 @@
         }
     }
 
-    // UI Helpers
     private void ShowCreateForm()
     {
         currentParticipant = new ParticipantDto();
@@ -266,7 +254,6 @@
 
     private void EditParticipant(ParticipantDto p)
     {
-        // Copying values to avoid modifying the table row before saving
         currentParticipant = new ParticipantDto
         {
             Id = p.Id,
