@@ -1,0 +1,248 @@
+﻿@page "/debates"
+@using Podium.Application
+@using Podium.Application.Responses
+@inject HttpClient Http
+
+<PageTitle>Debates - Podium</PageTitle>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Debates Management</h1>
+        <div class="d-flex gap-2">
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="number" class="form-control" placeholder="Search ID..." @bind="searchId" />
+                <button class="btn btn-outline-primary" @onclick="FetchDebateById">Search</button>
+            </div>
+            <button class="btn btn-success" @onclick="ShowCreateForm">New Debate</button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+        </div>
+    }
+
+    @if (showDetails && selectedDebate != null)
+    {
+        <div class="card mb-4 border-info shadow-sm bg-light">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Debate Details (ID: @selectedDebate.Id)</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="CloseDetails"></button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Title:</strong> @selectedDebate.Title</p>
+                        <p><strong>Topic ID:</strong> @selectedDebate.TopicId</p>
+                        <p><strong>Location:</strong> @selectedDebate.Location</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Date:</strong> @selectedDebate.ScheduledAt.ToString("g")</p>
+                        <p><strong>Description:</strong> @selectedDebate.Description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (showForm)
+    {
+        <div class="card mb-4 shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                @(isEditing ? "Edit Debate" : "Register New Debate")
+            </div>
+            <div class="card-body">
+                <EditForm Model="@currentDebate" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">Title</label>
+                            <InputText @bind-Value="currentDebate.Title" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Topic ID</label>
+                            <InputNumber @bind-Value="currentDebate.TopicId" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Location</label>
+                            <InputText @bind-Value="currentDebate.Location" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Scheduled At</label>
+                            <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="currentDebate.ScheduledAt" class="form-control" />
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="currentDebate.Description" class="form-control" rows="2" />
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-outline-secondary" @onclick="CloseForm">Cancel</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+
+    @if (debates == null)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Loading debates...</p>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover shadow-sm border">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in debates)
+                {
+                    <tr>
+                        <td class="align-middle">@d.Title</td>
+                        <td class="align-middle">@d.ScheduledAt.ToShortDateString()</td>
+                        <td class="align-middle">@d.Location</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-info" @onclick="() => ViewDetails(d)">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-warning" @onclick="() => EditDebate(d)">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-primary" @onclick="() => OpenAssignModal(d.Id)">
+                                    <i class="bi bi-person-plus"></i> Assign
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteDebate(d.Id)">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (showAssignModal)
+{
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign to Debate #@targetDebateId</h5>
+                    <button type="button" class="btn-close" @onclick="() => showAssignModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4 p-3 border rounded">
+                        <h6>Add Participant</h6>
+                        <div class="mb-2">
+                            <input type="number" class="form-control form-control-sm mb-1" placeholder="Participant ID" @bind="assignParticipantId" />
+                            <input type="text" class="form-control form-control-sm" placeholder="Role (e.g. Proponent)" @bind="assignRole" />
+                        </div>
+                        <button class="btn btn-sm btn-success w-100" @onclick="AddParticipant">Add Participant</button>
+                    </div>
+                    <div class="p-3 border rounded">
+                        <h6>Add Jury</h6>
+                        <input type="number" class="form-control form-control-sm mb-2" placeholder="Jury ID" @bind="assignJuryId" />
+                        <button class="btn btn-sm btn-primary w-100" @onclick="AddJury">Add Jury</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<DebateDto>? debates;
+    private DebateDto currentDebate = new() { ScheduledAt = DateTime.Now };
+    private DebateDto? selectedDebate;
+    private bool showForm = false;
+    private bool isEditing = false;
+    private bool showDetails = false;
+    private bool showAssignModal = false;
+    private int? searchId;
+    private string? errorMessage;
+
+    private int targetDebateId;
+    private int assignParticipantId;
+    private string assignRole = "";
+    private int assignJuryId;
+
+    protected override async Task OnInitializedAsync() => await LoadDebates();
+
+    private async Task LoadDebates()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<IEnumerable<DebateDto>>>("api/Debates");
+            if (response != null && response.Success) debates = response.Data.ToList();
+        }
+        catch (Exception ex) { errorMessage = ex.Message; }
+    }
+
+    private async Task FetchDebateById()
+    {
+        if (searchId == null) return;
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ApiResponse<DebateDto>>($"api/Debates/{searchId}");
+            if (response != null && response.Success) { selectedDebate = response.Data; showDetails = true; }
+        }
+        catch { errorMessage = "ID not found"; }
+    }
+
+    private async Task HandleSave()
+    {
+        var response = isEditing
+            ? await Http.PutAsJsonAsync($"api/Debates/{currentDebate.Id}", currentDebate)
+            : await Http.PostAsJsonAsync("api/Debates", currentDebate);
+
+        if (response.IsSuccessStatusCode) { await LoadDebates(); CloseForm(); }
+    }
+
+    private async Task DeleteDebate(int id)
+    {
+        var response = await Http.DeleteAsync($"api/Debates/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadDebates();
+        }
+        else
+        {
+            errorMessage = "Could not delete the debate.";
+        }
+    }
+
+    private void OpenAssignModal(int id) { targetDebateId = id; showAssignModal = true; }
+
+    private async Task AddParticipant()
+    {
+        var response = await Http.PostAsync($"api/Debates/AddParticipantToDebate/{targetDebateId}/{assignParticipantId}/{assignRole}", null);
+        if (response.IsSuccessStatusCode) { showAssignModal = false; assignRole = ""; }
+    }
+
+    private async Task AddJury()
+    {
+        var response = await Http.PostAsync($"api/Debates/AddJuryToDebate/{targetDebateId}/{assignJuryId}", null);
+        if (response.IsSuccessStatusCode) showAssignModal = false;
+    }
+
+    private void ShowCreateForm() { currentDebate = new() { ScheduledAt = DateTime.Now }; isEditing = false; showForm = true; }
+    private void EditDebate(DebateDto d) { currentDebate = d; isEditing = true; showForm = true; }
+    private void ViewDetails(DebateDto d) { selectedDebate = d; showDetails = true; }
+    private void CloseForm() => showForm = false;
+    private void CloseDetails() => showDetails = false;
+}

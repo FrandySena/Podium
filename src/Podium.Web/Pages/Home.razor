@@ -1,0 +1,135 @@
+﻿@page "/home"
+<PageTitle>Home - Podium</PageTitle>
+
+<div class="container mt-4" style="max-width: 1100px;">
+    
+    <div class="p-4 mb-5 bg-light rounded-3 shadow-sm border">
+        <div class="container-fluid py">
+            <div class="d-flex align-items-center mb-3">
+                <img src="Resources/PodiumLogo.png" alt="Podium Logo" style="width: 80px; height: 80px; margin-right: 20px;" />
+                <h1 class="display-5 fw-bold text-primary mb-0">Welcome to Podium</h1>
+            </div>
+            
+            <p class="col-md-10 fs-5 text-muted">
+                Podium is a management system designed to support the organization and administration of a debate club.
+                Its primary purpose is to centralize information related to participants, debates, topics, and evaluations,
+                enabling better planning, tracking, and analysis of performance within the club.
+            </p>
+        </div>
+    </div>
+
+    <h3 class="mb-4 fw-bold">Quick Access</h3>
+
+    <div class="row g-3">
+        <div class="col-md-4 col-lg-3">
+            <a href="participants" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-primary text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-people-fill fs-1 text-primary mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Participants</h6>
+                        <p class="card-text text-muted x-small">Manage members and profiles.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="juries" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-info text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-person-badge-fill fs-1 text-info mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Juries</h6>
+                        <p class="card-text text-muted x-small">Judges and experts admin.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="debates" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-danger text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-megaphone-fill fs-1 text-danger mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Debates</h6>
+                        <p class="card-text text-muted x-small">Schedule new events.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="debates/details" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-dark text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-info-circle-fill fs-1 text-dark mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Insights</h6>
+                        <p class="card-text text-muted x-small">Specific debate data.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="debates/registry" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-secondary text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-person-lines-fill fs-1 text-secondary mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Assignments</h6>
+                        <p class="card-text text-muted x-small">Track user roles.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="topics" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-success text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-journal-text fs-1 text-success mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Topics</h6>
+                        <p class="card-text text-muted x-small">Discussion themes.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="attendances" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-warning text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-clipboard-check-fill fs-1 text-warning mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Attendances</h6>
+                        <p class="card-text text-muted x-small">Monitor presence.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg-3">
+            <a href="evaluations" class="text-decoration-none">
+                <div class="card h-100 shadow-sm hover-card border-primary text-center">
+                    <div class="card-body p-3">
+                        <i class="bi bi-star-fill fs-1 text-primary mb-2"></i>
+                        <h6 class="card-title text-dark fw-bold mb-1">Evaluations</h6>
+                        <p class="card-text text-muted x-small">Scores and feedback.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        border-width: 2px !important;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+    }
+    .x-small {
+        font-size: 0.75rem;
+    }
+</style>

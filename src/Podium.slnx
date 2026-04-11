@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Podium.API/Podium.API.csproj" />
+  <Project Path="Podium.Application/Podium.Application.csproj" />
+  <Project Path="Podium.Domain/Podium.Domain.csproj" />
+  <Project Path="Podium.Infrastructure/Podium.Infrastructure.csproj" />
+  <Project Path="Podium.Persistence/Podium.Persistence.csproj" />
+  <Project Path="Podium.Web/Podium.Web.csproj" Id="dd992ad3-9c4d-4dea-95af-264b11f4074f" />
+</Solution>
