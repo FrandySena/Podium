@@ -12,14 +12,26 @@ namespace Podium.Application.Services
         {
             _unitOfWork = unitOfWork;
         }
+
         public async Task<ApiResponse<string>> LoginAsync(LoginDto loginDto)
         {
             var participants = await _unitOfWork.ParticipantRepository.GetAllAsync();
-            var user = participants.FirstOrDefault(p => p.Email == loginDto.Email && p.Password == loginDto.Password);
+            var userP = participants.FirstOrDefault(p => p.Email == loginDto.Email && p.Password == loginDto.Password);
 
-            if (user == null) return ApiResponse<string>.FailureResponse("Wrong email or password");
+            if (userP != null)
+            {
+                return ApiResponse<string>.SuccessResponse("Welcome, Participant.");
+            }
 
-            return ApiResponse<string>.SuccessResponse("Welcome.");
+            var juries = await _unitOfWork.JuryRepository.GetAllAsync();
+            var userJ = juries.FirstOrDefault(j => j.Email == loginDto.Email && j.Password == loginDto.Password);
+
+            if (userJ != null)
+            {
+                return ApiResponse<string>.SuccessResponse("Welcome, Jury.");
+            }
+
+            return ApiResponse<string>.FailureResponse("Wrong email or password");
         }
     }
 }
